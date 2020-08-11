@@ -1,1 +1,16 @@
+archive:
+  maximum-size: 200 #Maximum size in MB
+  maximum-item-size: 50
+server:
+  port: 8082
 
+bitstream:
+  url: ""
+  registration-url: "http://localhost"
+  asset-folder: "/Users/thendriks/source/eureka/DSpace/registrationstore"
+  metadata-folder: "/Users/thendriks/source/eureka/DSpace/metadata"
+  dspace-metadata-folder: "/dspace/metadata"
+  dspace-asset-folder: "/dspace/registrationstore"
+
+crawler:
+  metadata-csv: "Annotation_of_Presentations_with_Metadata.csv"
