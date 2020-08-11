@@ -1,12 +1,11 @@
-archive:
-  maximum-size: 200 #Maximum size in MB
-  maximum-item-size: 50
 server:
   port: 8082
 
 bitstream:
-  url: ""
-  registration-url: "http://localhost"
+  dspace-url: "http://localhost:8080"
+  registration-path: "/dspace-cli-api/api/register"
+  # Collection ID should be set in the CSV rather than configured statically in the future
+  collection-id: "123456789/2"
   asset-folder: "/Users/thendriks/source/eureka/DSpace/registrationstore"
   metadata-folder: "/Users/thendriks/source/eureka/DSpace/metadata"
   dspace-metadata-folder: "/dspace/metadata"

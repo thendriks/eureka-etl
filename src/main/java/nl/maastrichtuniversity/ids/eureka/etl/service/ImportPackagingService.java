@@ -3,7 +3,6 @@ package nl.maastrichtuniversity.ids.eureka.etl.service;
 import com.opencsv.CSVParser;
 import com.opencsv.CSVParserBuilder;
 import com.opencsv.CSVReaderHeaderAware;
-import com.opencsv.bean.ColumnPositionMappingStrategy;
 import com.opencsv.bean.CsvToBean;
 import com.opencsv.bean.CsvToBeanBuilder;
 import com.opencsv.enums.CSVReaderNullFieldIndicator;
@@ -39,22 +38,22 @@ import static java.nio.file.StandardOpenOption.CREATE_NEW;
 @Slf4j
 @Service
 public class ImportPackagingService {
-    private BitStreamConfig bitStreamConfig;
+    public static final String COLLECTION_ID = "collection-id";
+    public static final String SOURCE = "source";
+    public static final String MAPFILE = "mapfile";
     private CrawlerConfig crawlerConfig;
-
-    private ContentExtractionService contentExtractionService;
+    private BitStreamConfig bitStreamConfig;
 
     public ImportPackagingService(BitStreamConfig bitStreamConfig,
-                                  CrawlerConfig crawlerConfig,
-                                  ContentExtractionService contentExtractionService) {
-        this.bitStreamConfig = bitStreamConfig;
+                                  CrawlerConfig crawlerConfig) {
         this.crawlerConfig = crawlerConfig;
-        this.contentExtractionService = contentExtractionService;
+        this.bitStreamConfig = bitStreamConfig;
     }
 
-    @Scheduled(initialDelay=1000, fixedDelay=Long.MAX_VALUE)
+    @Scheduled(initialDelay=1000, fixedDelay=Long.MAX_VALUE) //May give issues when we're all dead
 //    @Scheduled(cron = "0 * * * * ?")
     public void downloadBitStreams() throws IOException {
+        log.info("downloading bitstreams");
         List<KnowledgeObject> knowledgeObjects = parseMetaDataCsv();
         log.info("Knowledge objects: {}", Arrays.toString(knowledgeObjects.toArray()));
         Path registrationFolderPath = createFolderPath(bitStreamConfig.getAssetFolder());
@@ -96,15 +95,13 @@ public class ImportPackagingService {
 
     private void requestUploadForToday(Path fileName) {
         Path uploadFolderPath = bitStreamConfig.getDspaceMetadataFolder().resolve(fileName);
-        //TODO: Remove hardcoded values.
         log.info("Uploading knowledge objects for path: {}", uploadFolderPath);
-        String url = "http://localhost:8080";
-        WebClient webClient = WebClient.create(url);
+        WebClient webClient = WebClient.create(bitStreamConfig.getDspaceUrl());
         WebClient.RequestBodySpec request = webClient.post()
-                .uri(builder -> builder.path("/dspace-cli-api/api/register")
-                        .queryParam("source", uploadFolderPath.toString())
-                        .queryParam("collection-id", "123456789/2")
-                        .queryParam("mapfile", "mapfile")
+                .uri(builder -> builder.path(bitStreamConfig.getRegistrationPath())
+                        .queryParam(SOURCE, uploadFolderPath.toString())
+                        .queryParam(COLLECTION_ID, bitStreamConfig.getCollectionId())
+                        .queryParam(MAPFILE, MAPFILE)
                         .build());
         try {
             String response = request.exchange().block().bodyToMono(String.class).block();
@@ -138,7 +135,7 @@ public class ImportPackagingService {
 
             for(KnowledgeObject knowledgeObject : knowledgeObjects) {
                 knowledgeObject.setOptionalMetaData(mapReader.readMap());
-                String fileSize = knowledgeObject.getOptionalMetaData().get("dc.filesize2");
+                String fileSize = knowledgeObject.getOptionalMetaData().get("knowledgeobject.filesize");
                 if(fileSize != null && !fileSize.isBlank() && !"NA".equals(fileSize)){ //If filesize is blank assume there is no binary data.
                     String location = knowledgeObject.getUrl();
                     String fileName = location.substring(location.lastIndexOf("/") + 1);
