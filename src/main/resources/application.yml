@@ -6,8 +6,8 @@ bitstream:
   registration-path: "/dspace-cli-api/api/register"
   # Collection ID should be set in the CSV rather than configured statically in the future
   collection-id: "123456789/2"
-  asset-folder: "/Users/thendriks/source/eureka/DSpace/registrationstore"
-  metadata-folder: "/Users/thendriks/source/eureka/DSpace/metadata"
+  asset-folder: ${DSPACE_LOCATION}/registrationstore
+  metadata-folder: ${DSPACE_LOCATION}/metadata
   dspace-metadata-folder: "/dspace/metadata"
   dspace-asset-folder: "/dspace/registrationstore"
 

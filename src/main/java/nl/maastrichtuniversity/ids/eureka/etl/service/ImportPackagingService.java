@@ -45,9 +45,13 @@ public class ImportPackagingService {
     private BitStreamConfig bitStreamConfig;
 
     public ImportPackagingService(BitStreamConfig bitStreamConfig,
-                                  CrawlerConfig crawlerConfig) {
+                                  CrawlerConfig crawlerConfig) throws Exception {
         this.crawlerConfig = crawlerConfig;
         this.bitStreamConfig = bitStreamConfig;
+        Path assetFolder = this.bitStreamConfig.getAssetFolder();
+        if(assetFolder.toString().contains("${")){
+            throw new Exception("Required environment variable not set.");
+        }
     }
 
     @Scheduled(initialDelay=1000, fixedDelay=Long.MAX_VALUE) //May give issues when we're all dead
