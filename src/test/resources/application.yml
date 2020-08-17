@@ -1,0 +1,15 @@
+server:
+  port: 8082
+
+bitstream:
+  dspace-url: "http://localhost:8080"
+  registration-path: "/dspace-cli-api/api/register"
+  # Collection ID should be set in the CSV rather than configured statically in the future
+  collection-id: "123456789/2"
+  asset-folder: registrationstore
+  metadata-folder: metadata
+  dspace-metadata-folder: "/dspace/metadata"
+  dspace-asset-folder: "/dspace/registrationstore"
+
+crawler:
+  metadata-csv: "Annotation_of_Presentations_with_Metadata.csv"
